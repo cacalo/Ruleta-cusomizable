@@ -9,6 +9,10 @@ const totalElement = document.getElementById("porcentaje");
 const botonCancelar = document.getElementById("cancelar");
 const botonAceptar = document.getElementById("aceptar");
 const botonAgregar = document.getElementById("agregar");
+const ganadorTextoElement = document.getElementById("ganadorTexto");
+let ganador = "";
+let animacionCarga;
+
 const escala = 600;
 let sorteando = false;
 /** Contiene la suma actual de probabilidades en base 100 */
@@ -18,7 +22,7 @@ root.style.setProperty("--escala",escala+"px");
 
 const uno = {
 	nombre: "Uno",
-	probabilidad:10
+	probabilidad:20
 }
 
 const dos = {
@@ -32,7 +36,7 @@ const tres = {
 }
 const cuatro = {
 	nombre: "Cuatro",
-	probabilidad: 40
+	probabilidad: 30
 }
 
 let probabilidades = [uno,dos,tres,cuatro];
@@ -41,6 +45,20 @@ let probabilidades = [uno,dos,tres,cuatro];
 /** Pone a girar la ruleta y hace el sorteo del resultado */
 function sortear(){
 	sorteando = true;
+	ganadorTextoElement.textContent = ".";
+	animacionCarga = setInterval(()=>{
+		switch( ganadorTextoElement.textContent){
+			case ".":
+				ganadorTextoElement.textContent = ".."
+				break;
+			case "..":
+				ganadorTextoElement.textContent = "..."
+				break;
+			default:
+				ganadorTextoElement.textContent = "."
+				break;
+		}
+	} ,500)
 	const nSorteo = Math.random();
 	const giroRuleta = (1-nSorteo)*360 + 360*10; //10 vueltas + lo aleatorio - el giro actual
 	root.style.setProperty('--giroRuleta', giroRuleta + "deg");
@@ -48,7 +66,8 @@ function sortear(){
 	let pAcumulada = 0;
 	probabilidades.forEach(objeto => {
 		if(nSorteo*100 > pAcumulada && nSorteo*100 <= pAcumulada+objeto.probabilidad){
-			console.log("Ganador", nSorteo*100, objeto.nombre, "porque está entre ",pAcumulada, "y",pAcumulada+objeto.probabilidad)
+			ganador = objeto.nombre;
+			//console.log("Ganador", nSorteo*100, objeto.nombre, "porque está entre ",pAcumulada, "y",pAcumulada+objeto.probabilidad)
 		};
 		pAcumulada +=objeto.probabilidad;
 	})
@@ -56,14 +75,15 @@ function sortear(){
 
 ruleta.addEventListener("animationend", ()=>{
 	ruleta.style.transform = "rotate("+getCurrentRotation(ruleta)+"deg)";
-	// ruleta.style.transform = "rotate(0deg)";
 		ruleta.classList.toggle("girar",false)
 		sorteando=false;
+		ganadorTextoElement.textContent = ganador;
+		clearInterval(animacionCarga);
 })
 
 /** Contiene la lista de colores posibles para el gráfico */
 const colores=[
-	"100000","CCCCCC","126253","134526"
+	"126253","134526","C7B446","5D9B9B","8673A1","100000"
 ]
 
 /** Crea todas las partes del elemento ruleta */
@@ -91,7 +111,7 @@ function ajustarRuleta (){
 		opcionElement.appendChild(nombreElement);
 		//Creo separadores
 		const separadorElement = document.createElement("div");
-		separadorElement.style = `transform: rotate(${probabilidadAGrados(probabilidad.pInicial)}deg)`
+		separadorElement.style = `transform: rotate(${probabilidadAGrados(pAcumulada)}deg)`
 		separadorElement.classList.add("separador");
 		opcionesContainer.appendChild(separadorElement);
 		pAcumulada += probabilidad.probabilidad;

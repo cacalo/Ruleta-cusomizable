@@ -11,7 +11,11 @@
 <body>
 	<h1>¡Haz tu propia ruleta!</h1>
 	<div id="container">
-		<div id="marcador"></div>
+		<div id="marcador">
+			<div id="cartelGanador">
+				<p id="ganadorTexto">¡Click en "Girar" para iniciar!</p>
+			</div>
+		</div>
 		<div id="ruleta">
 			<!-- <img src="./img/transportador.png" alt=""> -->
 			<div id="opcionesContainer">
@@ -26,8 +30,8 @@
 			<p>Probabilidad (%)</p>
 		</div>
 		<div id="formContainer"></div>
-		<p>Total: <span id="porcentaje"></span>%</p>
 		<button id="agregar">+</button>
+		<p>Total: <span id="porcentaje"></span>%</p>
 		<button id="aceptar">Cambiar</button>
 		<button id="cancelar">Cancelar</button>
 	</dialog>
