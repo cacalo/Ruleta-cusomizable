@@ -12,7 +12,7 @@ const botonAgregar = document.getElementById("agregar");
 const ganadorTextoElement = document.getElementById("ganadorTexto");
 let ganador = "";
 let animacionCarga;
-let escala = screen.width < 412 ? screen.width * 0.7 : 400;
+let escala = screen.width < 550 ? screen.width * 0.7 : 400;
 let sorteando = false;
 
 /** Contiene la suma actual de probabilidades en base 100 */
