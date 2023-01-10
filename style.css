@@ -1,19 +1,33 @@
 :root{
 	--escala: 600px;
-	--giroRuleta: 200deg;
+	--giroRuleta: 0deg;
 }
 *{
 	box-sizing: border-box;
 	font-family: Verdana, Geneva, Tahoma, sans-serif;
+	text-align: center;
 }
 
 body{
 	background: radial-gradient(circle, rgba(230,228,198,1) 4%, rgba(137,191,156,1) 62%, rgba(29,141,125,1) 100%);
-	display: flex;
-	justify-content: center;
-	align-items: center;
 	min-height: 100vh;
 	margin: 0;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+
+h1{
+	text-align: center;
+}
+
+#container{
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	height: 100%;
 }
 
 #ruleta{
@@ -39,6 +53,7 @@ body{
 	justify-content: space-around;
 	font-weight: bold;
 	text-decoration: underline;
+	gap: 40px;
 }
 
 #opcionesContainer{
@@ -58,18 +73,31 @@ body{
 	margin-right: auto;
 }
 
+#marcador{
+	position: absolute;
+	z-index: 10;
+	top: -20px;
+	background-color: black;
+	height: 100px;
+	width: 5px;
+}
+
 #sortear{
 	position: absolute;
 	background-color: rgb(255, 76, 76);
 	border-radius: 50%;
-	width: calc(var(--escala) / 12 );
-	height: calc(var(--escala) / 12 );
-	top: calc(var(--escala) / 2 - var(--escala) / 12 / 2 );
-	left: calc(var(--escala) / 2 - var(--escala) / 12 / 2 );
+	width: calc(var(--escala) / 10 );
+	height: calc(var(--escala) / 10 );
+	top: calc(var(--escala) / 2 - var(--escala) / 10 / 2 );
+	left: calc(var(--escala) / 2 - var(--escala) / 10 / 2 );
 	z-index: 2;
 	text-align: center;
 	cursor: pointer;
 	user-select: none;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border: 1px solid black;
 }
 
 .opcion{
@@ -80,12 +108,6 @@ body{
 	width: var(--escala);
 	background-color: var(--color);
 	transform: rotate( var(--deg));
-}
-
-.opcionSVG{
-	position: absolute;
-	height: var(--escala);
-	width: var(--escala);
 }
 
 /* Texto de opcion*/
@@ -124,6 +146,7 @@ body{
 
 dialog{
 	border:unset;
+	padding: 30px;
 	-webkit-box-shadow: 10px 10px 20px 0px rgba(0,0,0,0.75);
 	-moz-box-shadow: 10px 10px 20px 0px rgba(0,0,0,0.75);
 	box-shadow: 10px 10px 20px 0px rgba(0,0,0,0.75);
@@ -131,6 +154,10 @@ dialog{
 
 dialog::backdrop{
 	backdrop-filter: blur(2px);
+}
+
+dialog input[type=number]{
+	max-width: 50px;
 }
 
 @keyframes girar {

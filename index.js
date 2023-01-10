@@ -18,58 +18,48 @@ root.style.setProperty("--escala",escala+"px");
 
 const uno = {
 	nombre: "Uno",
-	pInicial: 0,
 	probabilidad:10
 }
 
 const dos = {
 	nombre: "Dos",
-	pInicial: 0,
 	probabilidad: 20
 }
 
 const tres = {
 	nombre: "Tres",
-	pInicial: 0,
 	probabilidad: 30
 }
 const cuatro = {
 	nombre: "Cuatro",
-	pInicial: 0,
 	probabilidad: 40
 }
 
 let probabilidades = [uno,dos,tres,cuatro];
 
-/** Asigna a cada opcion una probabilidad inicial */
-function calcularPIniciales(){
-	let sumaProbabilidades = 0;
-	probabilidades.forEach(objeto => {
-		objeto.pInicial = sumaProbabilidades;
-		sumaProbabilidades += objeto.probabilidad
-	} )
-}
 
 /** Pone a girar la ruleta y hace el sorteo del resultado */
 function sortear(){
 	sorteando = true;
 	const nSorteo = Math.random();
-	const giroRuleta = nSorteo*360+360*10 - getCurrentRotation(ruleta); //10 vueltas + lo aleatorio - el giro actual
+	const giroRuleta = (1-nSorteo)*360 + 360*10; //10 vueltas + lo aleatorio - el giro actual
 	root.style.setProperty('--giroRuleta', giroRuleta + "deg");
 	ruleta.classList.toggle("girar",true)
+	let pAcumulada = 0;
 	probabilidades.forEach(objeto => {
-		if(nSorteo*100 > objeto.pInicial && nSorteo*100 <= objeto.pInicial+objeto.probabilidad){
-			console.log("Ganador", nSorteo*100, objeto.pInicial, objeto.nombre)
+		if(nSorteo*100 > pAcumulada && nSorteo*100 <= pAcumulada+objeto.probabilidad){
+			console.log("Ganador", nSorteo*100, objeto.nombre, "porque está entre ",pAcumulada, "y",pAcumulada+objeto.probabilidad)
 		};
+		pAcumulada +=objeto.probabilidad;
 	})
-	setTimeout(()=> {
-		rotacionActual = getCurrentRotation(ruleta);
-		ruleta.style.transform = "rotate("+rotacionActual+"deg)";
-		ruleta.classList.toggle("girar",false)
-		console.log(getCurrentRotation(ruleta))
-		sorteando=false;
-	},5000)
 }
+
+ruleta.addEventListener("animationend", ()=>{
+	ruleta.style.transform = "rotate("+getCurrentRotation(ruleta)+"deg)";
+	// ruleta.style.transform = "rotate(0deg)";
+		ruleta.classList.toggle("girar",false)
+		sorteando=false;
+})
 
 /** Contiene la lista de colores posibles para el gráfico */
 const colores=[
@@ -81,13 +71,14 @@ function ajustarRuleta (){
 	opciones = Array.from(document.getElementsByClassName("opcion"));
 	opciones.forEach(opcion => opcionesContainer.removeChild(opcion));
 	Array.from(document.getElementsByClassName("separador")).forEach(opcion => opcionesContainer.removeChild(opcion));
+	let pAcumulada = 0
 	probabilidades.forEach((probabilidad, i) => {
 		//Creo triangulos de colores
 		const opcionElement = document.createElement("div");
 		opcionElement.classList.toggle("opcion",true);
 		opcionElement.style = `
 			--color: #${colores[i%colores.length]};
-			--deg:${probabilidadAGrados(probabilidad.pInicial)}deg;
+			--deg:${probabilidadAGrados(pAcumulada)}deg;
 			${getPosicionParaProbabilidad(probabilidad.probabilidad)}`
 		opcionElement.addEventListener("click", ()=> onOpcionClicked(i))
 		opcionesContainer.appendChild(opcionElement);
@@ -103,6 +94,7 @@ function ajustarRuleta (){
 		separadorElement.style = `transform: rotate(${probabilidadAGrados(probabilidad.pInicial)}deg)`
 		separadorElement.classList.add("separador");
 		opcionesContainer.appendChild(separadorElement);
+		pAcumulada += probabilidad.probabilidad;
 	})
 }
 
@@ -111,9 +103,6 @@ function ajustarRuleta (){
 function probabilidadAGrados(probabiliad){
 	return probabiliad * 360 / 100;
 }
-
-calcularPIniciales()
-ajustarRuleta();
 
 document.getElementById("sortear").addEventListener("click", () => {
 	if(!sorteando) sortear()
@@ -131,7 +120,7 @@ function getCurrentRotation(el){
   if (tm != "none") {
     var values = tm.split('(')[1].split(')')[0].split(',');
     var angle = Math.round(Math.atan2(values[1],values[0]) * (180/Math.PI));
-    return (angle < 0 ? angle + 360 : angle); //adding 360 degrees here when angle < 0 is equivalent to adding (2 * Math.PI) radians before
+    return (angle < 0 ? angle + 360 : angle);
   }
   return 0;
 }
@@ -150,16 +139,13 @@ botonCancelar.addEventListener("click",()=> {
 	modal.close();
 });
 botonAceptar.addEventListener("click",()=> {
-	console.log("Guardando cambios")
 	probabilidades = Array.from(formContainer.children).map(opcion =>
 		nuevaProbabilidad = {
 			nombre: opcion.children[0].tagName==="LABEL" ? opcion.children[0].textContent : opcion.children[0].value,
 			pInicial: 0,
 			probabilidad: parseFloat(opcion.children[1].value)
 	})
-	calcularPIniciales();
 	ajustarRuleta()
-	console.log(probabilidades);
 	modal.close()
 });
 
@@ -205,7 +191,6 @@ function getPosicionParaProbabilidad(probabilidad){
 	}
 	if(probabilidad >= 12.5){
 		const y3 = (0.5 - (0.5/ Math.tan(probabilidadARadianes(probabilidad))))*100;
-		console.log(probabilidadARadianes(probabilidad),y3)
 		return `clip-path: polygon(50% 0, 100% 0, 100% ${y3}%, 50% 50%)`
 	}
 	if(probabilidad >= 0){
@@ -217,16 +202,13 @@ function getPosicionParaProbabilidad(probabilidad){
 function verificarValidezFormulario(){
 	suma=0;
 	Array.from(formContainer.children).forEach(opcion =>{
-		console.log("opcion")
 		suma += parseFloat(opcion.children[1].value);
-		console.log(opcion.children[1])
 	})
 	if(suma !== 100){
 		botonAceptar.disabled = true;
 	} else{
 		botonAceptar.disabled = false;
 	}
-	console.log("SUMA",suma)
 	totalElement.textContent = suma.toString();
 
 }
@@ -265,9 +247,12 @@ function agregarConfiguracionProbabilidad(probabilidad = undefined){
 
 
 function probabilidadARadianes(probabilidad){
-	console.log(probabilidad/100 * 2 * Math.PI)
 	return probabilidad/100 * 2 * Math.PI;
 }
+
+
+/** Inicia ejecución */
+ajustarRuleta();
 
 
 /** Cómo dibujar ángulos en CSS */
