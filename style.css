@@ -86,10 +86,10 @@ h1{
 	position: absolute;
 	background-color: rgb(255, 76, 76);
 	border-radius: 50%;
-	width: calc(var(--escala) / 10 );
-	height: calc(var(--escala) / 10 );
-	top: calc(var(--escala) / 2 - var(--escala) / 10 / 2 );
-	left: calc(var(--escala) / 2 - var(--escala) / 10 / 2 );
+	width: 60px;
+	height: 60px;
+	top: calc(var(--escala) / 2 - 60px / 2 );
+	left: calc(var(--escala) / 2 - 60px / 2 );
 	z-index: 2;
 	text-align: center;
 	cursor: pointer;
@@ -108,6 +108,7 @@ h1{
 	width: var(--escala);
 	background-color: var(--color);
 	transform: rotate( var(--deg));
+	cursor: pointer;
 }
 
 /* Texto de opcion*/
