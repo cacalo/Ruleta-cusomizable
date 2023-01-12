@@ -2,6 +2,7 @@
 	--escala: 600px;
 	--giroRuleta: 0deg;
 }
+
 *{
 	box-sizing: border-box;
 	font-family: Verdana, Geneva, Tahoma, sans-serif;
@@ -41,6 +42,27 @@ h1{
 	overflow: hidden;
 }
 
+
+#cartelGanador{
+	position: absolute;
+	left: -150px;
+	top: -40px;
+	background-color: rgba(29,141,125,1);
+	min-height: 55px;
+	width: 300px;
+	font-weight: bold;
+}
+#marcador{
+	position: absolute;
+	z-index: 10;
+	top: -20px;
+	background-color: black;
+	height: 100px;
+	width: 5px;
+	pointer-events: none;
+}
+
+/* Transportador */
 #ruleta img{
 	position: absolute;
 	left: 0;
@@ -51,39 +73,8 @@ h1{
 	pointer-events: none;
 }
 
-#tituloForm{
-	display: flex;
-	justify-content: space-around;
-	font-weight: bold;
-	text-decoration: underline;
-	gap: 40px;
-}
-
 #opcionesContainer{
 	transform-origin: center;
-}
-
-#formContainer{
-	display: flex;
-	flex-direction: column;
-}
-
-#formContainer div{
-	display: flex;
-}
-
-#formContainer div label{
-	margin-right: auto;
-}
-
-#marcador{
-	position: absolute;
-	z-index: 10;
-	top: -20px;
-	background-color: black;
-	height: 100px;
-	width: 5px;
-	pointer-events: none;
 }
 
 #sortear{
@@ -152,16 +143,7 @@ h1{
 	animation-fill-mode: forwards;
 }
 
-#cartelGanador{
-	position: absolute;
-	left: -150px;
-	top: -40px;
-	background-color: rgba(29,141,125,1);
-	min-height: 55px;
-	width: 300px;
-	font-weight: bold;
-}
-
+/* Modal y formulario */
 dialog{
 	border:unset;
 	border-radius: 10px;
@@ -185,12 +167,34 @@ dialog #agregar{
 	margin: auto;
 }
 
+#tituloForm{
+	display: flex;
+	justify-content: space-around;
+	font-weight: bold;
+	text-decoration: underline;
+	gap: 40px;
+}
+
+#formContainer{
+	display: flex;
+	flex-direction: column;
+}
+
+#formContainer div{
+	display: flex;
+}
+
+#formContainer div label{
+	margin-right: auto;
+}
+
+/* Extra */
+footer{
+	user-select: none;
+}
+
 @keyframes girar {
 	100%{
 		transform: rotate( var(--giroRuleta) );
 	}
-}
-
-footer{
-	user-select: none;
 }
