@@ -5,25 +5,31 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<link rel="stylesheet" href="style.css">
-	<script src="index.js" defer></script>
+	<script src="./js/index.js" defer></script>
+	<script src="./js/helpers.js"></script>
 	<title>Ruleta</title>
 </head>
 <body>
+	<!-- Título -->
 	<h1>¡Haz tu propia ruleta!</h1>
 	<div id="container">
+
+		<!-- Marcador -->
 		<div id="marcador">
 			<div id="cartelGanador">
 				<p id="ganadorTexto">¡Click en "Girar" para iniciar!</p>
 			</div>
 		</div>
+
+		<!-- Ruleta -->
 		<div id="ruleta">
 			<!-- <img src="./img/transportador.png" alt=""> -->
-			<div id="opcionesContainer">
-			</div>
 			<div id="sortear"><p>GIRAR</p></div>
 		</div>
 	</div>
 	<!-- <button id="settings">SETTINGS</button> -->
+
+	<!-- Modal -->
 	<dialog>
 		<div id="tituloForm">
 			<p>Nombre</p>
@@ -35,6 +41,8 @@
 		<button id="aceptar">Cambiar</button>
 		<button id="cancelar">Cancelar</button>
 	</dialog>
+
+	<!-- Footer -->
 	<footer>
 		<p>Hecho con amor por Calo de <a href="https://www.youtube.com/channel/UCWDxiTN0CBZzVwvHFQUk92w" target="_blank">puntoJson</a></p>
 		<p>¿Querés saber cómo lo hice? <a href="#" target="_blank">Mirá el video acá</a></p>

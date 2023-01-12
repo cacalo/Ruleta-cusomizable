@@ -19,6 +19,7 @@ body{
 
 h1{
 	text-align: center;
+	user-select: none;
 }
 
 #container{
@@ -42,10 +43,12 @@ h1{
 
 #ruleta img{
 	position: absolute;
+	left: 0;
 	transform:rotate(90deg);
 	width: var(--escala);
 	z-index: 10;
-	opacity: 30%;
+	opacity: 80%;
+	pointer-events: none;
 }
 
 #tituloForm{
@@ -80,6 +83,7 @@ h1{
 	background-color: black;
 	height: 100px;
 	width: 5px;
+	pointer-events: none;
 }
 
 #sortear{
@@ -112,17 +116,20 @@ h1{
 }
 
 /* Texto de opcion*/
-.opcion p{
+.nombre{
+	margin: 0;
+	padding-top: 30px;
 	color: white;
 	text-align: center;
+	height: calc(var(--escala) / 2);
 	position: absolute;
-	bottom: 80%;
-	top: 20%;
-	left: 45%;
-	transform-origin: bottom;
+	/*bottom: 80%;*/
+	top: -0%;
+	left: calc(var(--escala) / 4 );
+	transform-origin: bottom center;
 	font-size: calc(var(--escala) / 25 );
 	text-overflow: clip;
-	user-select: none;
+	pointer-events: none;
 }
 
 .separador{
@@ -182,4 +189,8 @@ dialog #agregar{
 	100%{
 		transform: rotate( var(--giroRuleta) );
 	}
+}
+
+footer{
+	user-select: none;
 }

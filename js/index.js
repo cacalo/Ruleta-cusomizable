@@ -1,6 +1,6 @@
-
+//Referencias a objetos
 const ruleta = document.getElementById("ruleta");
-const opcionesContainer = document.getElementById("opcionesContainer");
+let opcionesContainer;
 let opciones = Array.from(document.getElementsByClassName("opcion"));
 const root = document.documentElement;
 const formContainer = document.getElementById("formContainer");
@@ -10,26 +10,36 @@ const botonCancelar = document.getElementById("cancelar");
 const botonAceptar = document.getElementById("aceptar");
 const botonAgregar = document.getElementById("agregar");
 const ganadorTextoElement = document.getElementById("ganadorTexto");
+
+/** Texto de la opción ganadora */
 let ganador = "";
+/** Para el setInterval que hace que el cartel de ganador anime los "..." */
 let animacionCarga;
-let escala = screen.width < 550 ? screen.width * 0.7 : 400;
+/** Estado actual de la ruleta true => Bloquea el mouse; */
 let sorteando = false;
+/** Contiene la lista de colores posibles para el gráfico */
+const colores=[
+	"126253","134526","C7B446","5D9B9B","8673A1","100000","4C9141","8E402A","231A24","424632","1F3438","025669","008F39","763C28"
+];
+
+/** Cambia la escala para hacer la herramienta pseudo responsive (faltaría un event listener al cambio de width para que sea bien responsive) */
+let escala = screen.width < 550 ? screen.width * 0.7 : 400;
+root.style.setProperty("--escala",escala+"px");
 
 /** Contiene la suma actual de probabilidades en base 100 */
 let suma = 0;
 
-root.style.setProperty("--escala",escala+"px");
 
+
+/** Instancias de conceptos que se cargan al iniciar la app */
 const uno = {
 	nombre: "Uno",
 	probabilidad:20
 }
-
 const dos = {
 	nombre: "Dos",
 	probabilidad: 20
 }
-
 const tres = {
 	nombre: "Tres",
 	probabilidad: 30
@@ -39,7 +49,7 @@ const cuatro = {
 	probabilidad: 30
 }
 
-let probabilidades = [uno,dos,tres,cuatro];
+let conceptos = [uno,dos,tres,cuatro];
 
 
 /** Pone a girar la ruleta y hace el sorteo del resultado */
@@ -59,20 +69,24 @@ function sortear(){
 				break;
 		}
 	} ,500)
+	/** Numero del 0 al 1 que contiene al ganador del sorteo */
 	const nSorteo = Math.random();
-	const giroRuleta = (1-nSorteo)*360 + 360*10; //10 vueltas + lo aleatorio - el giro actual
+	/** Cantidad de grados que debe girar la ruleta */
+	const giroRuleta = (1-nSorteo)*360 + 360*10; //10 vueltas + lo aleatorio;
 	root.style.setProperty('--giroRuleta', giroRuleta + "deg");
 	ruleta.classList.toggle("girar",true)
+	/** Acumulador de probabilidad para calcular cuando una probabilidad fue ganadora */
 	let pAcumulada = 0;
-	probabilidades.forEach(objeto => {
-		if(nSorteo*100 > pAcumulada && nSorteo*100 <= pAcumulada+objeto.probabilidad){
-			ganador = objeto.nombre;
-			//console.log("Ganador", nSorteo*100, objeto.nombre, "porque está entre ",pAcumulada, "y",pAcumulada+objeto.probabilidad)
+	conceptos.forEach(concepto => {
+		if(nSorteo*100 > pAcumulada && nSorteo*100 <= pAcumulada+concepto.probabilidad){
+			ganador = concepto.nombre;
+			//console.log("Ganador", nSorteo*100, concepto.nombre, "porque está entre ",pAcumulada, "y",pAcumulada+concepto.probabilidad)
 		};
-		pAcumulada +=objeto.probabilidad;
+		pAcumulada +=concepto.probabilidad;
 	})
 }
 
+/** Desacopla lo que ocurre al terminar de girar la ruleta de la función girar */
 ruleta.addEventListener("animationend", ()=>{
 	ruleta.style.transform = "rotate("+getCurrentRotation(ruleta)+"deg)";
 		ruleta.classList.toggle("girar",false)
@@ -81,92 +95,126 @@ ruleta.addEventListener("animationend", ()=>{
 		clearInterval(animacionCarga);
 })
 
-/** Contiene la lista de colores posibles para el gráfico */
-const colores=[
-	"126253","134526","C7B446","5D9B9B","8673A1","100000"
-]
 
-/** Crea todas las partes del elemento ruleta */
+/** Crea todas las partes del elemento ruleta según la lista de conceptos */
 function ajustarRuleta (){
-	opciones = Array.from(document.getElementsByClassName("opcion"));
-	opciones.forEach(opcion => opcionesContainer.removeChild(opcion));
-	Array.from(document.getElementsByClassName("separador")).forEach(opcion => opcionesContainer.removeChild(opcion));
+	// Primero borro la ruleta anterior y creo una nueva.
+	if(opcionesContainer)	ruleta.removeChild(opcionesContainer)
+	opcionesContainer = document.createElement("div");
+	opcionesContainer.id = "opcionesContainer";
+	ruleta.appendChild(opcionesContainer);
 	let pAcumulada = 0
-	probabilidades.forEach((probabilidad, i) => {
+	conceptos.forEach((concepto, i) => {
 		//Creo triangulos de colores
 		const opcionElement = document.createElement("div");
 		opcionElement.classList.toggle("opcion",true);
 		opcionElement.style = `
 			--color: #${colores[i%colores.length]};
 			--deg:${probabilidadAGrados(pAcumulada)}deg;
-			${getPosicionParaProbabilidad(probabilidad.probabilidad)}`
+			${getPosicionParaProbabilidad(concepto.probabilidad)}`
 		opcionElement.addEventListener("click", ()=> onOpcionClicked(i))
 		opcionesContainer.appendChild(opcionElement);
 		//Creo textos
 		const nombreElement = document.createElement("p");
-		nombreElement.textContent = probabilidad.nombre;
+		nombreElement.textContent = concepto.nombre;
 		nombreElement.classList.add("nombre");
-		nombreElement.style = `width : calc(${probabilidad.probabilidad} * var(--escala) * 1.5 / 70);
-		transform: rotate(${probabilidadAGrados(probabilidad.probabilidad)/2}deg)`
-		opcionElement.appendChild(nombreElement);
+		nombreElement.style = `width : calc(${concepto.probabilidad} * var(--escala) * 1.5 / 80);
+			transform: rotate(${probabilidadAGrados(concepto.probabilidad)/2+probabilidadAGrados(pAcumulada)}deg)`
+		opcionesContainer.appendChild(nombreElement);
 		//Creo separadores
 		const separadorElement = document.createElement("div");
 		separadorElement.style = `transform: rotate(${probabilidadAGrados(pAcumulada)}deg)`
 		separadorElement.classList.add("separador");
 		opcionesContainer.appendChild(separadorElement);
-		pAcumulada += probabilidad.probabilidad;
+		pAcumulada += concepto.probabilidad;
+		//Reseteo la posición y el cartel
+		ruleta.style.transform = "rotate(0deg)";
+		ganadorTextoElement.textContent = "¡Click en Girar para iniciar!";
 	})
 }
 
 
-/** Recibe un Nº base 1 y devuelve un Nº base 360 */
-function probabilidadAGrados(probabiliad){
-	return probabiliad * 360 / 100;
-}
+//Eventos de botones
 
 document.getElementById("sortear").addEventListener("click", () => {
 	if(!sorteando) sortear()
 })
 
-/** Devuelve la rotación en grados de un elemento */
-function getCurrentRotation(el){
-  var st = window.getComputedStyle(el, null);
-  var tm = st.getPropertyValue("-webkit-transform") ||
-           st.getPropertyValue("-moz-transform") ||
-           st.getPropertyValue("-ms-transform") ||
-           st.getPropertyValue("-o-transform") ||
-           st.getPropertyValue("transform") ||
-           "none";
-  if (tm != "none") {
-    var values = tm.split('(')[1].split(')')[0].split(',');
-    var angle = Math.round(Math.atan2(values[1],values[0]) * (180/Math.PI));
-    return (angle < 0 ? angle + 360 : angle);
-  }
-  return 0;
-}
-
 function onOpcionClicked(i){
+	// Borro los elementos de la lista
 	Array.from(formContainer.children).forEach(element => formContainer.removeChild(element))
-	probabilidades.forEach(probabilidad =>{
-		agregarConfiguracionProbabilidad(probabilidad);
+	// Creo items de lista para cada probabilidad
+	conceptos.forEach(concepto =>{
+		agregarConfiguracionProbabilidad(concepto);
 	})
 	modal.showModal();
 	verificarValidezFormulario()
 }
 
-botonCancelar.addEventListener("click",()=> {
-	modal.close();
-});
 botonAceptar.addEventListener("click",()=> {
-	probabilidades = Array.from(formContainer.children).map(opcion =>
+	conceptos = Array.from(formContainer.children).map(opcion =>
 		nuevaProbabilidad = {
 			nombre: opcion.children[0].tagName==="LABEL" ? opcion.children[0].textContent : opcion.children[0].value,
 			pInicial: 0,
 			probabilidad: parseFloat(opcion.children[1].value)
+		})
+		ajustarRuleta()
+		modal.close()
+	});
+
+	botonCancelar.addEventListener("click",()=> {
+		modal.close();
+	});
+
+
+/** Revisa si  los porcentajes de probabilidades suman a 100% */
+function verificarValidezFormulario(){
+	suma=0;
+	Array.from(formContainer.children).forEach(opcion =>{
+		suma += parseFloat(opcion.children[1].value);
 	})
-	ajustarRuleta()
-	modal.close()
-});
+	if(suma !== 100){
+		botonAceptar.disabled = true;
+	} else{
+		botonAceptar.disabled = false;
+	}
+	totalElement.textContent = suma.toString();
+	
+}
+
+// Botón "+" en el formulario de probabilidades
+document.getElementById("agregar").addEventListener("click",() =>{
+	agregarConfiguracionProbabilidad();
+})
+
+function agregarConfiguracionProbabilidad(probabilidad = undefined){
+	const opcionContainer = document.createElement("div");
+	let opcionLabel;
+	const opcionInput = document.createElement("input");
+	const eliminarBoton = document.createElement("button");
+	if(probabilidad){
+		opcionLabel = document.createElement("label");
+		opcionLabel.textContent = probabilidad.nombre;
+		opcionLabel.for = probabilidad.nombre;
+		opcionInput.value = probabilidad.probabilidad;
+		opcionLabel.type = "text";
+	}
+	else {
+		opcionLabel = document.createElement("input");
+	}
+	opcionInput.type = "number";
+	eliminarBoton.textContent = "X"
+	opcionInput.addEventListener("change", ()=> verificarValidezFormulario())
+	opcionContainer.appendChild(opcionLabel);
+	opcionContainer.appendChild(opcionInput);
+	opcionContainer.appendChild(eliminarBoton);
+	formContainer.appendChild(opcionContainer);
+	eliminarBoton.addEventListener("click",(event)=>{
+		event.target.parentNode.parentNode.removeChild(event.target.parentNode);
+		verificarValidezFormulario();
+	})
+}
+
 
 //Heptágono en Clippy https://bennettfeely.com/clippy/
 //100% 360º - clip-path: polygon(50% 0%, 100% 0, 100% 100%, 0 100%, 0 0, 50% 0, 50% 50%)
@@ -180,6 +228,7 @@ botonAceptar.addEventListener("click",()=> {
 //1%	3.6º - clip-path: polygon(50% 0, 51% 0, 50% 50%);
 //0%	3.6º - clip-path: polygon(50% 0, 50% 0, 50% 50%);
 
+/** Desde una probabilidad en % devuelve un clip-path que forma el ángulo correspondiente a esa probabilidad */
 function getPosicionParaProbabilidad(probabilidad){
 	if(probabilidad === 100){
 		return ''
@@ -218,62 +267,9 @@ function getPosicionParaProbabilidad(probabilidad){
 	}
 }
 
-function verificarValidezFormulario(){
-	suma=0;
-	Array.from(formContainer.children).forEach(opcion =>{
-		suma += parseFloat(opcion.children[1].value);
-	})
-	if(suma !== 100){
-		botonAceptar.disabled = true;
-	} else{
-		botonAceptar.disabled = false;
-	}
-	totalElement.textContent = suma.toString();
-
-}
-
-document.getElementById("agregar").addEventListener("click",() =>{
-	agregarConfiguracionProbabilidad();
-})
-
-function agregarConfiguracionProbabilidad(probabilidad = undefined){
-	const opcionContainer = document.createElement("div");
-	let opcionLabel;
-	const opcionInput = document.createElement("input");
-	const eliminarBoton = document.createElement("button");
-	if(probabilidad){
-		opcionLabel = document.createElement("label");
-		opcionLabel.textContent = probabilidad.nombre;
-		opcionLabel.for = probabilidad.nombre;
-		opcionInput.value = probabilidad.probabilidad;
-		opcionLabel.type = "text";
-	}
-	else {
-		opcionLabel = document.createElement("input");
-	}
-	opcionInput.type = "number";
-	eliminarBoton.textContent = "X"
-	opcionInput.addEventListener("change", ()=> verificarValidezFormulario())
-	opcionContainer.appendChild(opcionLabel);
-	opcionContainer.appendChild(opcionInput);
-	opcionContainer.appendChild(eliminarBoton);
-	formContainer.appendChild(opcionContainer);
-	eliminarBoton.addEventListener("click",(event)=>{
-		event.target.parentNode.parentNode.removeChild(event.target.parentNode);
-		verificarValidezFormulario();
-	})
-}
-
-
-function probabilidadARadianes(probabilidad){
-	return probabilidad/100 * 2 * Math.PI;
-}
-
 
 /** Inicia ejecución */
 ajustarRuleta();
-
-
 
 /** Cómo dibujar ángulos en CSS */
 // Al final no lo usé.
