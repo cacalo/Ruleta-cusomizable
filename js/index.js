@@ -173,11 +173,7 @@ function verificarValidezFormulario(){
 	Array.from(formContainer.children).forEach(opcion =>{
 		suma += parseFloat(opcion.children[1].value);
 	})
-	if(suma !== 100){
-		botonAceptar.disabled = true;
-	} else{
-		botonAceptar.disabled = false;
-	}
+	botonAceptar.disabled = suma !== 100; // Deshabilito el botón aceptar si la suma es distinto de 100
 	totalElement.textContent = suma.toString();
 	
 }
