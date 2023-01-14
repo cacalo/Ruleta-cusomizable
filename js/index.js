@@ -206,7 +206,7 @@ function agregarConfiguracionProbabilidad(probabilidad = undefined){
 	opcionContainer.appendChild(eliminarBoton);
 	formContainer.appendChild(opcionContainer);
 	eliminarBoton.addEventListener("click",(event)=>{
-		event.target.parentNode.parentNode.removeChild(event.target.parentNode);
+		event.target.parentNode.parentNode.removeChild(event.target.parentNode); //También puede ser formContainer.removeChild(event.target.parentNode)
 		verificarValidezFormulario();
 	})
 }
